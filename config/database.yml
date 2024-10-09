@@ -27,6 +27,7 @@ default: &default
 
 development:
   <<: *default
+  url: postgres://postgres:postgres@localhost:55432
   database: skeleton_development
 
   # The specified database role being used to connect to PostgreSQL.
