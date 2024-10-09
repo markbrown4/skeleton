@@ -27,7 +27,7 @@ default: &default
 
 development:
   <<: *default
-  url: postgres://postgres:postgres@localhost:55432
+  url: postgres://postgres:postgres@localhost:5432
   database: skeleton_development
 
   # The specified database role being used to connect to PostgreSQL.
@@ -62,6 +62,7 @@ development:
 # Do not set this db to the same as development or production.
 test:
   <<: *default
+  url: postgres://postgres:postgres@localhost:5432
   database: skeleton_test
 
 # As with config/credentials.yml, you never want to store sensitive information,
