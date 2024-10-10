@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+export ROOT; ROOT="$(git rev-parse --show-toplevel)"
+
+app() {
+  local -i port; port="${PORTS_APP:-8080}"
+
+  bundle exec puma --bind "tcp://0.0.0.0:$port"
+}
+
+postgres() {
+  local -i port; port="${PORTS_POSTGRES:-5432}"
+
+  postgres_restart
+  tail -f "$ROOT/log/postgres.log"
+}
+
+postgres_restart() {
+  local -i port; port="${PORTS_POSTGRES:-5432}"
+
+  mise exec -- pg_ctl -l "$ROOT/log/postgres.log" -o "-F -p $port" restart
+}
+
+postgres_stop() {
+  mise exec -- pg_ctl stop
+}
+
+prepare_ruby() {
+  EXPECTED_RUBYGEMS_VERSION=$(cat ./.rubygems-version)
+  RUBYGEMS_VERSION=$(gem --version)
+  if [[ "$RUBYGEMS_VERSION" != "$EXPECTED_RUBYGEMS_VERSION" ]]; then
+    echo "Installing Rubygems v$EXPECTED_RUBYGEMS_VERSION (current: $RUBYGEMS_VERSION)" >&2
+    gem update --no-document --system "$EXPECTED_RUBYGEMS_VERSION"
+  fi
+
+  MINIMUM_BUNDLER_VERSION=$(tail -n 1 Gemfile.lock | xargs)
+  if ! gem list --installed bundler --version ">= $MINIMUM_BUNDLER_VERSION" > /dev/null; then
+    echo "Installing bundler v$MINIMUM_BUNDLER_VERSION" >&2
+    gem install --no-document --version "$MINIMUM_BUNDLER_VERSION" bundler
+  fi
+
+  # Setup bundler config.
+  # Required for 'pg' gem to build successfully.
+  bundle config set --local build.pg "--with-pg-config='$(mise where postgres)/bin/pg_config'"
+  # required for success on m1
+  bundle config set --local build.pg_query "--with-ldflags='-Wl,-undefined,dynamic_lookup'"
+  # required for success on m1
+  bundle config set --local build.grpc "--with-ldflags='-Wl,-undefined,dynamic_lookup'"
+
+  bundle
+}
+
+bootstrap() {
+  prepare_ruby
+  postgres_restart
+}
+
+yeah() {
+  overmind start "$@"
+}
+
+if [[ $# -eq 0 || "$1" == -* ]]; then
+  yeah "$@"
+else
+  "$@"
+fi

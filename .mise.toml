@@ -1,0 +1,14 @@
+[tools]
+postgres = "15.4"
+ruby = "3.3.4"
+
+[plugins]
+postgres = "https://github.com/smashedtoatoms/asdf-postgres.git#4592b6406292d09626124982823fa0e49b56a764"
+
+[settings]
+# Automatically answer yes to all prompts.
+yes = true
+
+# Force `mise` paths to the front of `PATH`.
+# https://mise.jdx.dev/configuration.html#activate-aggressive
+activate_aggressive = true
