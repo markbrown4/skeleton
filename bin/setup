@@ -21,6 +21,8 @@ FileUtils.chdir APP_ROOT do
   #   FileUtils.cp "config/database.yml.sample", "config/database.yml"
   # end
 
+  # system! "bundle config set --local build.pg \"--with-pg-config='$(where postgres)/bin/pg_config'\""
+
   puts "\n== Preparing database =="
   system! "bin/rails db:prepare"
 
