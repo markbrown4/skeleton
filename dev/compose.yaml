@@ -2,15 +2,20 @@ name: "skeleton"
 
 services:
   rails-app:
+    ports:
+      - 3000:80
+    environment:
+      CAPYBARA_SERVER_PORT: 45678
+      SELENIUM_HOST: selenium
+      DB_HOST: postgres
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile
-
+      dockerfile: Dockerfile
     volumes:
-      - ../..:/workspaces:cached
+      - ..:/rails:cached
 
     # Overrides default command so things don't shut down after the process ends.
-    command: sleep infinity
+    # command: sleep infinity
 
     # Uncomment the next line to use a non-root user for all processes.
     # user: vscode
@@ -26,6 +31,8 @@ services:
     restart: unless-stopped
 
   postgres:
+    ports:
+      - 5432:5432
     image: postgres:15.4
     restart: unless-stopped
     networks:

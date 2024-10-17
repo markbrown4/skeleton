@@ -1,2 +1,4 @@
-#!/usr/bin/env ruby
-exec "./bin/rails", "server", *ARGV
+#!/bin/bash
+
+cd dev
+docker compose up
